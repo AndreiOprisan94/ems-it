@@ -41,8 +41,8 @@ public final class EmsIT {
         final WebElement usernameInput = driver.findElement(By.id("j_username"));
         final WebElement passwordInput = driver.findElement(By.id("j_password"));
 
-        final String emsUsername = "andreiopr";
-        final String emsPassword = "andreiopr";
+        final String emsUsername = "john.smith";
+        final String emsPassword = "password";
 
         usernameInput.sendKeys(emsUsername);
         passwordInput.sendKeys(emsPassword);
@@ -80,7 +80,7 @@ public final class EmsIT {
                 .map(this::extractTuple)
                 .collect(Collectors.toList());
 
-        final String expectedProposedBy = "Oprisan Andrei";
+        final String expectedProposedBy = "Smith John";
         final String expectedBonusType = "???Performance???";
         final float expectedBonusValue = 234.56f;
 
