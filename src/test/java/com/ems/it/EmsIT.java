@@ -87,11 +87,7 @@ public final class EmsIT {
         assertEquals("Not expected bonus type", expectedBonusType, contents.get(1).getY());
         assertEquals("Not expected bonus value", expectedBonusValue, Float.parseFloat(contents.get(2).getY()), 0.0002f);
 
-        try {
-            Thread.sleep(5000);
-        } catch (final InterruptedException interrupted) {
-            fail("Thread Exception encountered");
-        }
+        sleepForAWhille(5000);
 
         driver.navigate().back();
 
@@ -107,7 +103,37 @@ public final class EmsIT {
     }
 
     @Test
-    public void c_shouldDoSuccessfulLogout() {
+    public void c_shouldHaveSalary() {
+        driver.get("http://localhost:8080/pages/my-paid-salaries.xhtml");
+
+        final WebElement salaryTable = driver.findElement(By.id("form:j_idt68:j_idt70:0:j_idt72_content"));
+
+        final List<WebElement> salaries = salaryTable.findElement(By.tagName("table"))
+                .findElement(By.tagName("tbody"))
+                .findElements(By.tagName("tr"));
+
+        assertEquals("Not expected number of payed salaries", salaries.size(), 1);
+
+        List<String> salariesEntries = salaries.get(0)
+                .findElements(By.tagName("td"))
+                .subList(1, 3).stream()
+                .map(WebElement::getText)
+                .map(string -> string.split(": ")[1])
+                .collect(Collectors.toList());
+
+        final String expectedPayDay = "24/03/2018";
+        final float expectedPayedSalary = 11000.98f;
+
+        assertEquals("Not expected pay day", expectedPayDay, salariesEntries.get(0));
+        assertEquals("Not expected payed salary", expectedPayedSalary, Float.parseFloat(salariesEntries.get(1)), 0.0002f);
+
+        sleepForAWhille(5000);
+
+        driver.navigate().back();
+    }
+
+    @Test
+    public void d_shouldDoSuccessfulLogout() {
         final List<WebElement> spans = driver.findElements(By.tagName("span"));
 
         spans.stream()
@@ -132,6 +158,14 @@ public final class EmsIT {
             assertNotNull(driver.findElement(By.id("j_idt17")));
         } catch (final NoSuchElementException noElementFound) {
             fail("Could not properly logout");
+        }
+    }
+
+    private void sleepForAWhille(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (final InterruptedException interrupted) {
+            fail("Thread Exception encountered");
         }
     }
 
