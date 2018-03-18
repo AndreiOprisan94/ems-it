@@ -27,6 +27,7 @@ public final class EmsIT {
     private static final String BASE_URL = "http://localhost:8080/login";
     private static final String BROWSER_DRIVER = "webdriver.chrome.driver";
     private static final String BROWSER_DRIVER_FILE_PATH = "/Users/aoprisan/Documents/Facultate/EPA/web-driver/chromedriver";
+    private static final int SLEEP_TIME = 3000;
 
     @BeforeClass
     public static void init() {
@@ -87,7 +88,7 @@ public final class EmsIT {
         assertEquals("Not expected bonus type", expectedBonusType, contents.get(1).getY());
         assertEquals("Not expected bonus value", expectedBonusValue, Float.parseFloat(contents.get(2).getY()), 0.0002f);
 
-        sleepForAWhille(5000);
+        sleepForAWhile(SLEEP_TIME);
 
         driver.navigate().back();
 
@@ -112,7 +113,7 @@ public final class EmsIT {
                 .findElement(By.tagName("tbody"))
                 .findElements(By.tagName("tr"));
 
-        assertEquals("Not expected number of payed salaries", salaries.size(), 1);
+        assertEquals("Not expected number of payed salaries", 1, salaries.size());
 
         List<String> salariesEntries = salaries.get(0)
                 .findElements(By.tagName("td"))
@@ -127,13 +128,42 @@ public final class EmsIT {
         assertEquals("Not expected pay day", expectedPayDay, salariesEntries.get(0));
         assertEquals("Not expected payed salary", expectedPayedSalary, Float.parseFloat(salariesEntries.get(1)), 0.0002f);
 
-        sleepForAWhille(5000);
+        sleepForAWhile(SLEEP_TIME);
 
         driver.navigate().back();
     }
 
     @Test
-    public void d_shouldDoSuccessfulLogout() {
+    public void d_shouldHaveDocuments() {
+        driver.get("http://localhost:8080/pages/my-documents.xhtml");
+
+        final List<WebElement> divs = driver.findElements(By.tagName("div"));
+
+        final List<WebElement> documentsList = divs.stream()
+                .filter(webElement -> webElement.getAttribute("class") != null)
+                .filter(webElement -> webElement.getAttribute("class").equals("ui-carousel-viewport"))
+                .findFirst()
+                .map(webElement -> webElement.findElement(By.tagName("ul")))
+                .filter(webElement -> webElement.getAttribute("class") != null)
+                .filter(webElement -> webElement.getAttribute("class").equals("ui-carousel-items"))
+                .map(webElement -> webElement.findElements(By.tagName("li")))
+                .orElse(null);
+
+        assertNotNull("Not expected null value", documentsList);
+        assertEquals("Not expected number of documents", 1, documentsList.size());
+
+        final String expectedDocumentName = "Previous employment";
+        final String actualDocumentName = documentsList.get(0).getText().split("\n")[0];
+
+        assertEquals("Not expected document name", expectedDocumentName, actualDocumentName);
+
+        sleepForAWhile(SLEEP_TIME);
+
+        driver.navigate().back();
+    }
+
+    @Test
+    public void e_shouldDoSuccessfulLogout() {
         final List<WebElement> spans = driver.findElements(By.tagName("span"));
 
         spans.stream()
@@ -161,7 +191,7 @@ public final class EmsIT {
         }
     }
 
-    private void sleepForAWhille(int millis) {
+    private void sleepForAWhile(int millis) {
         try {
             Thread.sleep(millis);
         } catch (final InterruptedException interrupted) {
