@@ -1,23 +1,30 @@
 package com.ems.it;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.Properties;
 
 final class ConnectionManager {
+
+    private static final Properties properties = getProperties();
+
     private static final String DRIVER_NAME = "oracle.jdbc.driver.OracleDriver";
     private static final String CONNECTION_URI = "jdbc:oracle:thin:@" +
-            System.getProperty("ems.database.uri") + ":o11g";
+            properties.getProperty("ems.database.host") + ":" +
+            properties.getProperty("ems.database.port") + ":" +
+            properties.getProperty("ems.database.sid");
 
-    private static final String DATABASE_USERNAME = System.getProperty("ems.database.username");
-    private static final String DATABASE_PASSWORD = System.getProperty("ems.database.password");
+    private static final String DATABASE_USERNAME = properties.getProperty("ems.database.username");
+    private static final String DATABASE_PASSWORD = properties.getProperty("ems.database.password");
 
     private ConnectionManager() {
         throw new AssertionError("This class is not meant to be instantiated");
     }
 
-    public static Optional<Connection> getConnection() {
+    static Optional<Connection> getConnection() {
         Connection connection = null;
         try {
             Class.forName(DRIVER_NAME);
@@ -32,6 +39,19 @@ final class ConnectionManager {
         }
 
         return Optional.of(connection);
+    }
+
+    private static Properties getProperties() {
+        final Properties properties = new Properties();
+
+        try {
+            properties.load(ConnectionManager.class.getResourceAsStream("/application.properties"));
+        } catch (final IOException couldNotLoadProperties) {
+            System.err.println("Could not load properties from file");
+            return null;
+        }
+
+        return properties;
     }
 
 }

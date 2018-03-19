@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public final class EmsIT {
+public final class EmsIntegrationTest {
 
     private static WebDriver driver;
     private static final String BASE_URL = "http://localhost:8080/login";
