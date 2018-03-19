@@ -1,4 +1,4 @@
---clean up
+--just to be sure there is nothing in the tables
 delete from documents_employment;
 delete from salaries;
 delete from bonus;
@@ -32,13 +32,13 @@ insert into users(user_id,
                   role_id
                   ) 
 values (1, 'john.smith', 'password', 'Sillicon Valey', null, 'myavatar', 'California', 'California', 'john.smith@bigcorp.com',
-        'John', 'Smith', 7, 7, 7,'02-03-2016','072183093', 52.78, null, null, null, 1);
+        'John', 'Smith', 7, 7, 7, TO_DATE('04-03-2016','DD-MM-YYYY'),'072183093', 52.78, null, null, null, 1);
 
 
 insert into bonus_type values (1, 'Performance');
-insert into bonus values(1,'Yes', '03-05-2017', '07-07-2017', 'Very good guy', 'yes', 234.56, 1, 1,1, 1);
+insert into bonus values(1,'Yes', TO_DATE('03-05-2017','DD-MM-YYYY'), TO_DATE('07-07-2017','DD-MM-YYYY'), 'Very good guy', 'yes', 234.56, 1, 1,1, 1);
 
-insert into salaries values(1, 11000.98, '24-03-2018', 1);
+insert into salaries values(1, 11000.98, TO_DATE('24-03-2018','DD-MM-YYYY'), 1);
 
 insert into documents_employment values(1, null, 'Previous employment', 1);
 

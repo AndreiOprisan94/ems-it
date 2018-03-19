@@ -1,5 +1,6 @@
 package com.ems.it;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -10,7 +11,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -25,15 +30,34 @@ public final class EmsIT {
 
     private static WebDriver driver;
     private static final String BASE_URL = "http://localhost:8080/login";
-    private static final String BROWSER_DRIVER = "webdriver.chrome.driver";
-    private static final String BROWSER_DRIVER_FILE_PATH = "/Users/aoprisan/Documents/Facultate/EPA/web-driver/chromedriver";
     private static final int SLEEP_TIME = 3000;
 
     @BeforeClass
-    public static void init() {
-        System.setProperty(BROWSER_DRIVER, BROWSER_DRIVER_FILE_PATH);
+    public static void setUp() {
+        populateDatabase();
         driver = new ChromeDriver();
         driver.get(BASE_URL);
+    }
+
+    private static void populateDatabase() {
+        final Optional<Connection> optional = ConnectionManager.getConnection();
+
+        final ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+        databasePopulator.addScript(new ClassPathResource("scripts/setup.sql"));
+
+        optional.ifPresent(connection -> executeScript(databasePopulator, connection));
+
+
+    }
+
+    private static void executeScript(ResourceDatabasePopulator databasePopulator, Connection connection) {
+        databasePopulator.populate(connection);
+
+        try {
+            connection.close();
+        } catch (final SQLException problemClosing) {
+            System.out.println("SQL connection did not properly close");
+        }
     }
 
     @Test
@@ -215,6 +239,20 @@ public final class EmsIT {
         T getY() {
             return y;
         }
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        cleanUpDatabase();
+    }
+
+    public static void cleanUpDatabase() {
+        final Optional<Connection> optional = ConnectionManager.getConnection();
+
+        final ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+        databasePopulator.addScript(new ClassPathResource("scripts/cleanup.sql"));
+
+        optional.ifPresent(connection -> executeScript(databasePopulator, connection));
     }
 
 }
