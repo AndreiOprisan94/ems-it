@@ -88,9 +88,6 @@ public final class EmsIntegrationTest {
 
     @Test
     public void b_shouldHaveBonus() {
-//        How to extract al childs of an element
-//        final List<WebElement> childs = bonusList.findElements(By.xpath(".//*"));
-
         driver.get("http://localhost:8080/pages/my-bonuses.xhtml");
 
         final WebElement bonusList = driver.findElement(By.id("form:bonusList_list"));
@@ -209,7 +206,9 @@ public final class EmsIntegrationTest {
                 .ifPresent(WebElement::click);
 
         try {
-            assertNotNull(driver.findElement(By.id("j_idt17")));
+            final WebElement loginButton = driver.findElement(By.id("j_idt17"))
+                    .findElement(By.tagName("span"));
+            assertEquals("No login button found", "Log in", loginButton.getText());
         } catch (final NoSuchElementException noElementFound) {
             fail("Could not properly logout");
         }
